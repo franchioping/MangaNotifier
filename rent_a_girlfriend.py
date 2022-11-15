@@ -11,14 +11,20 @@ class RentAGirlfriend:
         self.channel = channel
         self.role_id = role
         self.filePath = os.path.dirname(os.path.realpath(__file__)) + "/rent-a-gf.txt"
+        open(self.filePath, "a+").close()
 
     def set_last_latest_ep(self, ep: int):
         with open(self.filePath, "w") as f:
             f.write(str(ep))
 
-    def get_old_latest_ep(self):
+    def get_old_latest_ep(self) -> int:
         with open(self.filePath, "r") as f:
-            return f.readline()
+            try:
+                return int(f.readline())
+            except ValueError:
+                self.set_last_latest_ep(1)
+                return 1
+
 
     def get_last_listed_episode(self):
         request = r.get("https://kanojo-okarishimasu.com/")
