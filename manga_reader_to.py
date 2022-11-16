@@ -9,8 +9,8 @@ class MangaReaderAnime:
     def __init__(self, channel, role, name, anime_url_end, image_url):
         self.name = name
         self.image_url = image_url
-        self.channel = channel
-        self.role_id = role
+        self.channel = int(channel)
+        self.role_id = int(role)
         self.filePath = os.path.dirname(os.path.realpath(__file__)) + "/" + name + ".txt"
         self.anime_url_end = anime_url_end
         open(self.filePath, "a+").close()
@@ -22,8 +22,13 @@ class MangaReaderAnime:
     def get_old_latest_ep(self) -> int:
         with open(self.filePath, "r") as f:
             try:
-                return int(f.readline())
+                num = int(f.readline())
+                if num > 0:
+                    return num
+                else:
+                    raise ValueError
             except ValueError:
+                print("File is empty")
                 self.set_last_latest_ep(1)
                 return 1
 
@@ -39,15 +44,31 @@ class MangaReaderAnime:
 
         return embed
 
-    def get_channel(self):
+    def get_channel(self) -> int:
         return self.channel
 
-    def get_role_id(self):
+    def get_role_id(self) -> int:
         return self.role_id
+
+    def get_name(self) -> str:
+        return self.name
+
+    def get_anime_url_end(self) -> str:
+        return self.anime_url_end
+
+    def get_img_url(self) -> str:
+        return self.image_url
 
     def get_latest_episode(self):
         print("latest_ep")
         latest_ep = self.get_old_latest_ep()
+
+        step_size = 5
+        while not self.check_if_episode_exists(latest_ep):
+            print(latest_ep)
+            latest_ep += step_size
+        latest_ep -= step_size
+
         while not self.check_if_episode_exists(latest_ep):
             print(latest_ep)
             latest_ep += 1
