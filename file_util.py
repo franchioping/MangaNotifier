@@ -1,8 +1,8 @@
 import json
+import os
 
-import manga_reader_to
-
-fileName = "util.json"
+from manga import Manga
+fileName = os.path.dirname(os.path.realpath(__file__)) + "/util.json"
 
 
 def read_json():
@@ -15,15 +15,15 @@ def write_json(to_write: dict):
         json.dump(to_write, f, indent=3)
 
 
-def manga_reader_to_obj(manga_reader: manga_reader_to.MangaReaderAnime):
-    ret = {"name": manga_reader.get_name(), "url_end": manga_reader.get_anime_url_end(),
+def manga_reader_to_obj(manga_reader: Manga):
+    ret = {"name": manga_reader.get_name(), "url": manga_reader.get_anime_url(),
            "img_url": manga_reader.get_img_url(), "channel_id": manga_reader.channel, "role_id": manga_reader.role_id}
     return ret
 
 
-def obj_to_manga_reader(obj: dict) -> manga_reader_to.MangaReaderAnime:
-    return manga_reader_to.MangaReaderAnime(int(obj["channel_id"]), int(obj["role_id"]), obj["name"], obj["url_end"],
-                                            obj["img_url"])
+def obj_to_manga_reader(obj: dict) -> Manga:
+    return Manga(int(obj["channel_id"]), int(obj["role_id"]), obj["name"], obj["url"],
+                                 obj["img_url"])
 
 
 def add_obj_to_file(obj: dict):

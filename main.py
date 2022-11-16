@@ -1,21 +1,37 @@
+import os
+
 import discord
+from dotenv import load_dotenv
 
 import file_util
-import manga_reader_to
+from manga import Manga
 
 from discord.ext import commands
 from discord.ext import tasks
 
 from time import gmtime, strftime
 
-token = "MTAzNDE4Njg1MjY3NDA1MjE5Nw.Gvmphf.xH1M7h8HE5RGDJeX0vLbLxEk4daJbVKc0Lbznw"
-guild_id = 1042133536926347324
+load_dotenv()
+
+token = os.getenv("TOKEN")
+guild_id = int(os.getenv("GUILD"))
+
+assert guild_id is not None
+assert token is not None
+
 
 intents = discord.Intents.default()
 intents.message_content = True
 bot = commands.Bot(command_prefix='>', intents=intents)
 
 manga = []
+
+
+def is_guild_owner():
+    def predicate(ctx):
+        return ctx.guild is not None and ctx.guild.owner_id == ctx.author.id
+
+    return commands.check(predicate)
 
 
 def get_channel_id_from_mention(mention: str) -> int:
@@ -61,14 +77,15 @@ async def on_ready():
 
 
 @bot.command()
-async def add_manga_reader(ctx: discord.ext.commands.Context, *args):
+@commands.check_any(is_guild_owner())
+async def add_manga(ctx: discord.ext.commands.Context, *args):
     if len(args) != 5:
-        await ctx.send("wrong usage, check source code loser")
+        await ctx.send("wrong usage, check source code bozo")
 
     global manga
 
-    manga_reader = manga_reader_to.MangaReaderAnime(get_channel_id_from_mention(args[3]),
-                                                    get_role_id_from_mention(args[4]), args[0], args[1], args[2])
+    manga_reader = Manga(get_channel_id_from_mention(args[3]),
+                                         get_role_id_from_mention(args[4]), args[0], args[1], args[2])
 
     file_util.add_obj_to_file(file_util.manga_reader_to_obj(manga_reader))
     manga.append(manga_reader)
@@ -76,11 +93,13 @@ async def add_manga_reader(ctx: discord.ext.commands.Context, *args):
 
 
 @bot.command()
+@commands.check_any(is_guild_owner())
 async def list_manga(ctx: discord.ext.commands.Context):
     await ctx.send(str(file_util.get_manga_names()))
 
 
 @bot.command()
+@commands.check_any(is_guild_owner())
 async def remove_manga(ctx: discord.ext.commands.Context, arg):
     index = file_util.get_name_index(arg)
     if index == -1:
