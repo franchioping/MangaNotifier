@@ -62,6 +62,7 @@ async def test():
 
 @bot.event
 async def on_ready():
+    file_util.init()
     for i in file_util.read_json()["manga"]:
         manga.append(file_util.obj_to_manga_reader(i))
     test.start()

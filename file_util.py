@@ -2,7 +2,13 @@ import json
 import os
 
 from manga import Manga
+
 fileName = os.path.dirname(os.path.realpath(__file__)) + "/util.json"
+
+
+def init():
+    if not os.path.isfile(fileName):
+        write_json({"manga": []})
 
 
 def read_json():
@@ -23,7 +29,7 @@ def manga_reader_to_obj(manga_reader: Manga):
 
 def obj_to_manga_reader(obj: dict) -> Manga:
     return Manga(int(obj["channel_id"]), int(obj["role_id"]), obj["name"], obj["url"],
-                                 obj["img_url"])
+                 obj["img_url"])
 
 
 def add_obj_to_file(obj: dict):
@@ -55,4 +61,5 @@ def get_manga_names() -> list[str]:
         ret.append(i["name"])
     return ret
 
-
+if __name__ == "__main__":
+    init()
