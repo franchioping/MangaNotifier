@@ -81,4 +81,9 @@ class Manga:
         req = r.get(self.anime_url.replace(self.url_ep_str, str(num)))
         if req.status_code < 200 or req.status_code > 300:
             return False
+
+        # Needed for Rent-a-Girlfriend
+        if req.text.count("This is an Upcoming Post.") > 0:
+            return False
+
         return req.text.count("404") == 0
