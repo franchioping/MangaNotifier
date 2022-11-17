@@ -64,27 +64,32 @@ class Manga:
         print("latest_ep")
         latest_ep = self.get_old_latest_ep()
 
-        step_size = 50
-        while self.check_if_episode_exists(latest_ep):
-            print(latest_ep)
-            latest_ep += step_size
-        latest_ep -= step_size
+        if self.check_if_episode_exists(latest_ep) is None:
+            return -1
 
-        step_size = 10
-        while self.check_if_episode_exists(latest_ep):
-            print(latest_ep)
-            latest_ep += step_size
-        latest_ep -= step_size
+        steps = [100, 50, 10, 1]
+        i = 0
 
-        while self.check_if_episode_exists(latest_ep):
-            print(latest_ep)
-            latest_ep += 1
+        while True:
+            exists = self.check_if_episode_exists(latest_ep + steps[i])
+            if exists is None:
+                return -1
+            if exists:
+                latest_ep += steps[i]
+            else:
+                i += 1
+                if i > len(steps) - 1:
+                    break
 
-        self.set_last_latest_ep(latest_ep - 1)
-        return latest_ep - 1
+        self.set_last_latest_ep(latest_ep)
+        return latest_ep
 
     def check_if_episode_exists(self, num: int):
         req = r.get(self.anime_url.replace(self.url_ep_str, str(num)))
+
+        if req.status_code == 502:
+            return None
+
         if req.status_code < 200 or req.status_code > 300:
             return False
 
