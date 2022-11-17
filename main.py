@@ -98,6 +98,7 @@ def add_manga(channel_id: int, role_id: int, public_name: str, url: str, img_url
 async def add_manga_command(ctx: discord.ext.commands.Context, *args):
     if len(args) != 5:
         await ctx.send("wrong usage, check source code bozo")
+        return
 
     global manga
 
@@ -127,6 +128,7 @@ async def add_manga_reader(public_name: str, site_name: str):
 async def add_manga_reader_command(ctx: discord.ext.commands.Context, *args):
     if len(args) != 2:
         await ctx.send("wrong usage, check source code bozo")
+        return
     public_name = str(args[0])
     site_name = str(args[1])
 
@@ -140,6 +142,7 @@ async def add_manga_reader_command(ctx: discord.ext.commands.Context, *args):
 async def add_qm(ctx: discord.ext.commands.Context, *args):
     if len(args) != 3:
         await ctx.send("wrong usage, check source code bozo")
+        return
 
     public_name = str(args[0])
     site_name = str(args[1])
