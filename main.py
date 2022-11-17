@@ -56,7 +56,7 @@ async def test():
         time_str = strftime("%Y-%m-%d %H:%M:%S", gmtime())
         for i in manga:
             print("manga")
-            await asyncio.sleep(2)
+            await asyncio.sleep(1)
             if int(i.get_old_latest_ep()) != int(i.get_latest_episode()):
                 print("new episode!")
                 episode = i.get_latest_chapter()
