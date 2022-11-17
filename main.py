@@ -42,7 +42,7 @@ def get_role_id_from_mention(mention: str) -> int:
     return int(mention.replace("@&", "").replace("<", "").replace(">", ""))
 
 
-@tasks.loop(seconds=10)
+@tasks.loop(seconds=10 * 60)
 async def test():
     guild = bot.get_guild(guild_id)
     gmt_time = gmtime()
