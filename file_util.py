@@ -1,5 +1,6 @@
 import json
 import os
+import sys
 
 from manga import Manga
 
@@ -8,7 +9,12 @@ fileName = os.path.dirname(os.path.realpath(__file__)) + "/util.json"
 
 def init():
     if not os.path.isfile(fileName):
-        write_json({"manga": []})
+        write_json({"manga_category_id": "", "manga": []})
+    try:
+        get_manga_category_id()
+    except KeyError:
+        print("ERROR: add manga_category_id to util.json!")
+        exit(-1)
 
 
 def read_json():
@@ -19,6 +25,10 @@ def read_json():
 def write_json(to_write: dict):
     with open(fileName, "w") as f:
         json.dump(to_write, f, indent=3)
+
+
+def get_manga_category_id() -> int:
+    return int(read_json()["manga_category_id"])
 
 
 def manga_reader_to_obj(manga_reader: Manga):

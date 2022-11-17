@@ -8,6 +8,8 @@ from manga import Manga
 
 from discord.ext import commands
 from discord.ext import tasks
+from discord.utils import get
+import manga_reader_util
 
 from time import gmtime, strftime
 
@@ -15,15 +17,18 @@ load_dotenv()
 
 token = os.getenv("TOKEN")
 guild_id = int(os.getenv("GUILD"))
+delay = int(os.getenv("DELAY"))
 
 assert guild_id is not None
 assert token is not None
+assert delay is not None
 
 intents = discord.Intents.default()
 intents.message_content = True
 bot = commands.Bot(command_prefix='>', intents=intents)
 
 manga = []
+manga_category: discord.CategoryChannel
 
 
 def is_guild_owner():
@@ -41,7 +46,7 @@ def get_role_id_from_mention(mention: str) -> int:
     return int(mention.replace("@&", "").replace("<", "").replace(">", ""))
 
 
-@tasks.loop(seconds=10 * 60)
+@tasks.loop(seconds=delay)
 async def test():
     guild = bot.get_guild(guild_id)
     gmt_time = gmtime()
@@ -66,6 +71,8 @@ async def on_ready():
     file_util.init()
     for i in file_util.read_json()["manga"]:
         manga.append(file_util.obj_to_manga_reader(i))
+    global manga_category
+    manga_category = discord.utils.get(bot.get_guild(guild_id).categories, id=int(file_util.get_manga_category_id()))
     test.start()
 
 
@@ -78,19 +85,47 @@ async def on_ready():
 """
 
 
-@bot.command()
+def add_manga(channel_id: int, role_id: int, public_name: str, url: str, img_url: str):
+    manga_reader = Manga(channel_id,
+                         role_id, public_name, url, img_url)
+
+    file_util.add_obj_to_file(file_util.manga_reader_to_obj(manga_reader))
+    manga.append(manga_reader)
+
+
+@bot.command(name="add_manga")
 @commands.check_any(is_guild_owner())
-async def add_manga(ctx: discord.ext.commands.Context, *args):
+async def add_manga_command(ctx: discord.ext.commands.Context, *args):
     if len(args) != 5:
         await ctx.send("wrong usage, check source code bozo")
 
     global manga
 
-    manga_reader = Manga(get_channel_id_from_mention(args[3]),
-                         get_role_id_from_mention(args[4]), args[0], args[1], args[2])
+    add_manga(get_channel_id_from_mention(args[3]),
+              get_role_id_from_mention(args[4]), args[0], args[1], args[2])
 
-    file_util.add_obj_to_file(file_util.manga_reader_to_obj(manga_reader))
-    manga.append(manga_reader)
+    await ctx.send("success")
+
+
+@bot.command()
+@commands.check_any(is_guild_owner())
+async def add_manga_reader(ctx: discord.ext.commands.Context, *args):
+    if len(args) != 2:
+        await ctx.send("wrong usage, check source code bozo")
+    public_name = str(args[0])
+    site_name = str(args[1])
+
+    img_url = manga_reader_util.get_image_url(site_name)
+    chap_url = f"https://mangareader.to/read/{site_name}/en/chapter-%EP%"
+
+    everyone = ctx.guild.default_role
+
+    channel = await bot.get_guild(guild_id).create_text_channel(public_name, category=manga_category)
+    notification_role = await bot.get_guild(guild_id).create_role(name=public_name)
+    await channel.set_permissions(everyone, overwrite=discord.PermissionOverwrite(send_messages=False))
+
+    add_manga(channel.id, notification_role.id, public_name, chap_url, img_url)
+
     await ctx.send("success")
 
 
