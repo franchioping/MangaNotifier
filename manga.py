@@ -64,6 +64,12 @@ class Manga:
         print("latest_ep")
         latest_ep = self.get_old_latest_ep()
 
+        step_size = 10
+        while self.check_if_episode_exists(latest_ep):
+            print(latest_ep)
+            latest_ep += step_size
+        latest_ep -= step_size
+
         step_size = 5
         while self.check_if_episode_exists(latest_ep):
             print(latest_ep)
