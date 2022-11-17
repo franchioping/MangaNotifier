@@ -45,19 +45,21 @@ def get_role_id_from_mention(mention: str) -> int:
 @tasks.loop(seconds=10)
 async def test():
     guild = bot.get_guild(guild_id)
-    time_str = strftime("%Y-%m-%d %H:%M:%S", gmtime())
-    for i in manga:
-        print("manga")
-        if int(i.get_old_latest_ep()) != int(i.get_latest_episode()):
-            print("new episode!")
-            episode = i.get_latest_chapter()
-            embed = i.get_embed(time_str, episode)
-            role = guild.get_role(i.get_role_id())
-            print("channel" + str(i.get_channel()))
-            print("role" + str(i.get_role_id()))
-            await bot.get_channel(i.get_channel()).send(embed=embed, content=role.mention,
-                                                        allowed_mentions=discord.AllowedMentions(everyone=True))
-            i.set_last_latest_ep(episode)
+    gmt_time = gmtime()
+    if gmt_time.tm_hour != 23 or gmt_time.tm_min > 15:
+        time_str = strftime("%Y-%m-%d %H:%M:%S", gmtime())
+        for i in manga:
+            print("manga")
+            if int(i.get_old_latest_ep()) != int(i.get_latest_episode()):
+                print("new episode!")
+                episode = i.get_latest_chapter()
+                embed = i.get_embed(time_str, episode)
+                role = guild.get_role(i.get_role_id())
+                print("channel" + str(i.get_channel()))
+                print("role" + str(i.get_role_id()))
+                await bot.get_channel(i.get_channel()).send(embed=embed, content=role.mention,
+                                                            allowed_mentions=discord.AllowedMentions(everyone=True))
+                i.set_last_latest_ep(episode)
 
 
 @bot.event
