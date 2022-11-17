@@ -11,6 +11,8 @@ from discord.ext import tasks
 from discord.utils import get
 import manga_reader_util
 
+import asyncio
+
 from time import gmtime, strftime
 
 load_dotenv()
@@ -54,6 +56,7 @@ async def test():
         time_str = strftime("%Y-%m-%d %H:%M:%S", gmtime())
         for i in manga:
             print("manga")
+            await asyncio.sleep(2)
             if int(i.get_old_latest_ep()) != int(i.get_latest_episode()):
                 print("new episode!")
                 episode = i.get_latest_chapter()
