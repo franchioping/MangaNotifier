@@ -122,7 +122,8 @@ async def add_manga_reader(ctx: discord.ext.commands.Context, *args):
 
     channel = await bot.get_guild(guild_id).create_text_channel(public_name, category=manga_category)
     notification_role = await bot.get_guild(guild_id).create_role(name=public_name)
-    await channel.set_permissions(everyone, overwrite=discord.PermissionOverwrite(send_messages=False))
+    await channel.set_permissions(everyone, overwrite=discord.PermissionOverwrite(send_messages=False, view_channel=False))
+    await channel.set_permissions(notification_role, overwrite=discord.PermissionOverwrite(view_channel=True))
 
     add_manga(channel.id, notification_role.id, public_name, chap_url, img_url)
 
