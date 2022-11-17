@@ -112,7 +112,7 @@ async def remove_manga(ctx: discord.ext.commands.Context, arg):
 
 @bot.command()
 @commands.check_any(is_guild_owner())
-async def refresh_manga(ctx: discord.ext.commands.Context, arg):
+async def refresh_manga(ctx: discord.ext.commands.Context):
     await test()
     await ctx.send("success")
 
