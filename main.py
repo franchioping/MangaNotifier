@@ -19,7 +19,6 @@ guild_id = int(os.getenv("GUILD"))
 assert guild_id is not None
 assert token is not None
 
-
 intents = discord.Intents.default()
 intents.message_content = True
 bot = commands.Bot(command_prefix='>', intents=intents)
@@ -88,7 +87,7 @@ async def add_manga(ctx: discord.ext.commands.Context, *args):
     global manga
 
     manga_reader = Manga(get_channel_id_from_mention(args[3]),
-                                         get_role_id_from_mention(args[4]), args[0], args[1], args[2])
+                         get_role_id_from_mention(args[4]), args[0], args[1], args[2])
 
     file_util.add_obj_to_file(file_util.manga_reader_to_obj(manga_reader))
     manga.append(manga_reader)
@@ -109,6 +108,13 @@ async def remove_manga(ctx: discord.ext.commands.Context, arg):
         await ctx.send("no manga with than name in use")
         return
     file_util.remove_manga(index)
+
+
+@bot.command()
+@commands.check_any(is_guild_owner())
+async def refresh_manga(ctx: discord.ext.commands.Context, arg):
+    await test()
+    await ctx.send("success")
 
 
 bot.run(token)

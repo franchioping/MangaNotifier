@@ -61,5 +61,6 @@ def get_manga_names() -> list[str]:
         ret.append(i["name"])
     return ret
 
+
 if __name__ == "__main__":
     init()
