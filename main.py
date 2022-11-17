@@ -107,27 +107,50 @@ async def add_manga_command(ctx: discord.ext.commands.Context, *args):
     await ctx.send("success")
 
 
-@bot.command()
+async def add_manga_reader(public_name: str, site_name: str):
+    img_url = manga_reader_util.get_image_url(site_name)
+    chap_url = f"https://mangareader.to/read/{site_name}/en/chapter-%EP%"
+
+    everyone = bot.get_guild(guild_id).default_role
+
+    channel = await bot.get_guild(guild_id).create_text_channel(public_name, category=manga_category)
+    notification_role = await bot.get_guild(guild_id).create_role(name=public_name)
+    await channel.set_permissions(everyone,
+                                  overwrite=discord.PermissionOverwrite(send_messages=False, view_channel=False))
+    await channel.set_permissions(notification_role, overwrite=discord.PermissionOverwrite(view_channel=True))
+
+    add_manga(channel.id, notification_role.id, public_name, chap_url, img_url)
+
+
+@bot.command(name="add_manga_reader")
 @commands.check_any(is_guild_owner())
-async def add_manga_reader(ctx: discord.ext.commands.Context, *args):
+async def add_manga_reader_command(ctx: discord.ext.commands.Context, *args):
     if len(args) != 2:
         await ctx.send("wrong usage, check source code bozo")
     public_name = str(args[0])
     site_name = str(args[1])
 
-    img_url = manga_reader_util.get_image_url(site_name)
-    chap_url = f"https://mangareader.to/read/{site_name}/en/chapter-%EP%"
-
-    everyone = ctx.guild.default_role
-
-    channel = await bot.get_guild(guild_id).create_text_channel(public_name, category=manga_category)
-    notification_role = await bot.get_guild(guild_id).create_role(name=public_name)
-    await channel.set_permissions(everyone, overwrite=discord.PermissionOverwrite(send_messages=False, view_channel=False))
-    await channel.set_permissions(notification_role, overwrite=discord.PermissionOverwrite(view_channel=True))
-
-    add_manga(channel.id, notification_role.id, public_name, chap_url, img_url)
+    await add_manga_reader(public_name, site_name)
 
     await ctx.send("success")
+
+
+@bot.command()
+@commands.check_any(is_guild_owner())
+async def add_qm(ctx: discord.ext.commands.Context, *args):
+    if len(args) != 3:
+        await ctx.send("wrong usage, check source code bozo")
+
+    public_name = str(args[0])
+    site_name = str(args[1])
+    await add_manga_reader(public_name, site_name)
+
+    emoji = str(args[2])
+    react_role_msg_id = file_util.get_reaction_role_message_id()
+
+    role_id = file_util.read_json()["manga"][file_util.get_name_index(public_name)]["role_id"]
+    role_mention = bot.get_guild(guild_id).get_role(role_id).mention
+    await ctx.send(f"/reactionrole add message_id:{react_role_msg_id} emoji:{emoji} role:{role_mention}")
 
 
 @bot.command()

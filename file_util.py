@@ -16,6 +16,12 @@ def init():
         print("ERROR: add manga_category_id to util.json!")
         exit(-1)
 
+    try:
+        get_reaction_role_message_id()
+    except KeyError:
+        print("ERROR: add get_reaction_role_message_id to util.json!")
+        exit(-1)
+
 
 def read_json():
     with open(fileName, "r") as f:
@@ -29,6 +35,10 @@ def write_json(to_write: dict):
 
 def get_manga_category_id() -> int:
     return int(read_json()["manga_category_id"])
+
+
+def get_reaction_role_message_id() -> int:
+    return int(read_json()["reaction_role_message_id"])
 
 
 def manga_reader_to_obj(manga_reader: Manga):
@@ -60,7 +70,7 @@ def get_name_index(name: str) -> int:
 def remove_manga(index: int):
     file = read_json()
     manga_list = file["manga"]
-    manga_list.pop(1)
+    manga_list.pop(index)
     write_json(file)
 
 
