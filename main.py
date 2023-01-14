@@ -50,7 +50,7 @@ def get_role_id_from_mention(mention: str) -> int:
 
 
 @tasks.loop(seconds=delay)
-async def test():
+async def check_chapter_loop():
     guild = bot.get_guild(guild_id)
     time_str = strftime("%Y-%m-%d %H:%M:%S", gmtime())
     gmt_time = gmtime()
@@ -83,16 +83,7 @@ async def on_ready():
         manga.append(file_util.obj_to_manga_reader(i))
     global manga_category
     manga_category = discord.utils.get(bot.get_guild(guild_id).categories, id=int(file_util.get_manga_category_id()))
-    test.start()
-
-
-"""
-    argument 0 : anime name, basic ascii only, used in paths
-    argument 1 : manga reader url name, for example: chainsaw-man-colored-edition-56074
-    argument 2 : image url
-    argument 3 : channel where to post updates
-    argument 4 : role to ping
-"""
+    check_chapter_loop.start()
 
 
 def add_manga(channel_id: int, role_id: int, public_name: str, url: str, img_url: str):
@@ -101,6 +92,34 @@ def add_manga(channel_id: int, role_id: int, public_name: str, url: str, img_url
 
     file_util.add_obj_to_file(file_util.manga_reader_to_obj(manga_reader))
     manga.append(manga_reader)
+
+
+async def add_quick_manga(name: str, chap_url: str,
+                    img_url: str = "https://upload.wikimedia.org/wikipedia/commons/1/14/No_Image_Available.jpg?20200913095930") -> None:
+    everyone = bot.get_guild(guild_id).default_role
+
+    channel = await bot.get_guild(guild_id).create_text_channel(name, category=manga_category)
+    notification_role = await bot.get_guild(guild_id).create_role(name=name)
+    await channel.set_permissions(everyone,
+                                  overwrite=discord.PermissionOverwrite(send_messages=False, view_channel=False))
+    await channel.set_permissions(notification_role, overwrite=discord.PermissionOverwrite(view_channel=True))
+
+    add_manga(channel.id, notification_role.id, name, chap_url, img_url)
+
+
+def gen_reaction_role_command(name: str, emoji: str):
+    react_role_msg_id = file_util.get_reaction_role_message_id()
+
+    role_id = file_util.read_json()["manga"][file_util.get_name_index(name)]["role_id"]
+    role_mention = bot.get_guild(guild_id).get_role(role_id).mention
+    return f"/reactionrole add message_id:{react_role_msg_id} emoji:{emoji} role:{role_mention}"
+
+
+async def add_manga_reader(public_name: str, site_name: str):
+    img_url = manga_reader_util.get_image_url(site_name)
+    chap_url = f"https://mangareader.to/read/{site_name}/en/chapter-%EP%"
+
+    await add_quick_manga(public_name, chap_url, img_url)
 
 
 @bot.command(name="add_manga")
@@ -116,21 +135,6 @@ async def add_manga_command(ctx: discord.ext.commands.Context, *args):
               get_role_id_from_mention(args[4]), args[0], args[1], args[2])
 
     await ctx.send("success")
-
-
-async def add_manga_reader(public_name: str, site_name: str):
-    img_url = manga_reader_util.get_image_url(site_name)
-    chap_url = f"https://mangareader.to/read/{site_name}/en/chapter-%EP%"
-
-    everyone = bot.get_guild(guild_id).default_role
-
-    channel = await bot.get_guild(guild_id).create_text_channel(public_name, category=manga_category)
-    notification_role = await bot.get_guild(guild_id).create_role(name=public_name)
-    await channel.set_permissions(everyone,
-                                  overwrite=discord.PermissionOverwrite(send_messages=False, view_channel=False))
-    await channel.set_permissions(notification_role, overwrite=discord.PermissionOverwrite(view_channel=True))
-
-    add_manga(channel.id, notification_role.id, public_name, chap_url, img_url)
 
 
 @bot.command(name="add_manga_reader")
@@ -157,13 +161,20 @@ async def add_qm(ctx: discord.ext.commands.Context, *args):
     public_name = str(args[0])
     site_name = str(args[1])
     await add_manga_reader(public_name, site_name)
+    await ctx.send(gen_reaction_role_command(public_name, str(args[2])))
 
-    emoji = str(args[2])
-    react_role_msg_id = file_util.get_reaction_role_message_id()
 
-    role_id = file_util.read_json()["manga"][file_util.get_name_index(public_name)]["role_id"]
-    role_mention = bot.get_guild(guild_id).get_role(role_id).mention
-    await ctx.send(f"/reactionrole add message_id:{react_role_msg_id} emoji:{emoji} role:{role_mention}")
+@bot.command()
+@commands.check_any(is_guild_owner())
+async def add_cqm(ctx: discord.ext.commands.Context, *args):
+    if len(args) != 3:
+        await ctx.send("wrong usage, check source code bozo")
+        return
+
+    public_name = str(args[0])
+    chap_url = str(args[1])
+    await add_quick_manga(public_name, chap_url)
+    await ctx.send(gen_reaction_role_command(public_name, str(args[2])))
 
 
 @bot.command()
@@ -185,7 +196,7 @@ async def remove_manga(ctx: discord.ext.commands.Context, arg):
 @bot.command()
 @commands.check_any(is_guild_owner())
 async def refresh_manga(ctx: discord.ext.commands.Context):
-    await test()
+    await check_chapter_loop()
     await ctx.send("success")
 
 

@@ -1,5 +1,7 @@
 import discord
 import os
+import cloudscraper as cld
+
 
 import requests as r
 
@@ -7,6 +9,7 @@ import requests as r
 class Manga:
 
     def __init__(self, channel, role, name, anime_url, image_url):
+        self.scraper = cld.create_scraper()
         self.name = name
         self.image_url = image_url
         self.channel = int(channel)
@@ -85,7 +88,7 @@ class Manga:
         return latest_ep
 
     def check_if_episode_exists(self, num: int):
-        req = r.get(self.anime_url.replace(self.url_ep_str, str(num)))
+        req = self.scraper.get(self.anime_url.replace(self.url_ep_str, str(num)))
 
         if req.status_code == 502:
             return None
