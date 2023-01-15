@@ -68,7 +68,7 @@ class Manga:
         return self.image_url
 
     def get_latest_episode(self):
-        print(self.name, " Attempting Requests on ", self.get_anime_url())
+        print(" - Attempting Requests on ", self.get_anime_url())
         latest_ep = self.get_old_latest_ep()
 
         if self.check_if_episode_exists(latest_ep) is None:
@@ -95,10 +95,10 @@ class Manga:
 
     def check_if_episode_exists(self, num: int):
         req = self.scraper.get(self.anime_url.replace(self.url_ep_str, str(num)))
-        print(f" -- Chap {num} HTTP GET Result: ", req.status_code)
+        print(f" --- Chap {num} HTTP GET Result: ", req.status_code)
 
         if req.status_code == 502:
-            print(" -- Quit On 502 - Server May be Offline")
+            print(" ---- Code 502 - Server May be Offline")
             return None
 
         if req.status_code < 200 or req.status_code > 300:
@@ -106,7 +106,7 @@ class Manga:
 
         # Needed for Rent-a-Girlfriend
         if req.text.count("This is an Upcoming Post.") > 0:
-            print(" -- Quit Upcoming Post")
+            print(" ---- Not released yet - Upcoming Post")
             return False
 
         return True
