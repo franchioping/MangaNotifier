@@ -74,7 +74,7 @@ class Manga:
         if self.check_if_episode_exists(latest_ep) is None:
             return -1
 
-        steps = [100, 50, 10, 1]
+        steps = [100, 50, 10, 5, 1]
 
         while True:
             exists = self.check_if_episode_exists(latest_ep + steps[self.i])
