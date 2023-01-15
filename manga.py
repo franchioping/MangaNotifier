@@ -1,14 +1,14 @@
 import discord
 import os
 import cloudscraper as cld
-
+import sys
 
 import requests as r
 
 
 class Manga:
 
-    def __init__(self, channel, role, name, anime_url, image_url):
+    def __init__(self, channel, role, name, anime_url: str, image_url):
         self.scraper = cld.create_scraper()
         self.name = name
         self.image_url = image_url
@@ -19,6 +19,9 @@ class Manga:
         self.url_ep_str = "%EP%"
         open(self.filePath, "a+").close()
         self.i = 0
+
+        if self.anime_url.count("%EP%") < 1:
+            print(self.name, " - URL is Probably Incorrect - ", self.anime_url, file=sys.stderr)
 
     def set_last_latest_ep(self, ep: int):
         with open(self.filePath, "w") as f:
@@ -65,7 +68,7 @@ class Manga:
         return self.image_url
 
     def get_latest_episode(self):
-        print("latest_ep")
+        print(self.name, "Attempting Request on ", self.get_anime_url())
         latest_ep = self.get_old_latest_ep()
 
         if self.check_if_episode_exists(latest_ep) is None:
@@ -95,20 +98,15 @@ class Manga:
         print(self.name, f" - Chap {num} Request Result: ", req.status_code)
 
         if req.status_code == 502:
-            print(self.name, " - Quit On 502")
+            print(self.name, " - Quit On 502 - Server May be Offline")
             return None
 
         if req.status_code < 200 or req.status_code > 300:
-            print(self.name, " - Quit On 200 - 300")
             return False
 
         # Needed for Rent-a-Girlfriend
         if req.text.count("This is an Upcoming Post.") > 0:
             print(self.name, " - Quit Upcoming Post")
-            return False
-
-        if req.text.count("404") != 0:
-            print(self.name, " - Quit on 404 text")
             return False
 
         return True
