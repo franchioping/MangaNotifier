@@ -95,7 +95,7 @@ class Manga:
 
     def check_if_episode_exists(self, num: int):
         req = self.scraper.get(self.anime_url.replace(self.url_ep_str, str(num)))
-        print(self.name, f" -- Chap {num} GET Result: ", req.status_code)
+        print(self.name, f" -- Chap {num} HTTP GET Result: ", req.status_code)
 
         if req.status_code == 502:
             print(self.name, " -- Quit On 502 - Server May be Offline")
