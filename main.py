@@ -30,7 +30,7 @@ intents = discord.Intents.default()
 intents.message_content = True
 bot = commands.Bot(command_prefix='>', intents=intents)
 
-manga = []
+manga: list[Manga] = []
 manga_category: discord.CategoryChannel
 
 
@@ -56,16 +56,17 @@ async def check_chapter_loop():
     gmt_time = gmtime()
     if gmt_time.tm_hour != 23 or gmt_time.tm_min > 15:
         for i in manga:
-            print("manga")
+            print(i.name, " - Checking")
             await asyncio.sleep(1)
             old_latest_ep = int(i.get_old_latest_ep())
             latest_ep = i.get_latest_episode()
+            print(i.name, " - Latest EP: ", str(latest_ep))
             if latest_ep == -1:
                 print(f"ERROR - Web Request to " + str(i.anime_url) + " Failed. Aborting this check", file=sys.stderr)
                 return
 
             if old_latest_ep != latest_ep:
-                print("new episode!")
+                print(i.name, " - New EP: ", str(latest_ep), "Old EP: ", str(old_latest_ep))
                 episode = i.get_latest_chapter()
                 embed = i.get_embed(time_str, episode)
                 role = guild.get_role(i.get_role_id())

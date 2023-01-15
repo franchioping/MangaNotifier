@@ -18,6 +18,7 @@ class Manga:
         self.anime_url = anime_url
         self.url_ep_str = "%EP%"
         open(self.filePath, "a+").close()
+        self.i = 0
 
     def set_last_latest_ep(self, ep: int):
         with open(self.filePath, "w") as f:
@@ -71,17 +72,19 @@ class Manga:
             return -1
 
         steps = [100, 50, 10, 1]
-        i = 0
 
         while True:
-            exists = self.check_if_episode_exists(latest_ep + steps[i])
+            exists = self.check_if_episode_exists(latest_ep + steps[self.i])
             if exists is None:
                 return -1
             if exists:
-                latest_ep += steps[i]
+                latest_ep += steps[self.i]
             else:
-                i += 1
-                if i > len(steps) - 1:
+                if self.i == -1:
+                    break
+                self.i += 1
+                if self.i > len(steps) - 1:
+                    self.i = -1
                     break
 
         self.set_last_latest_ep(latest_ep)
