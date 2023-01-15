@@ -61,13 +61,13 @@ async def check_chapter_loop():
             await asyncio.sleep(1)
             old_latest_ep = int(i.get_old_latest_ep())
             latest_ep = i.get_latest_episode()
-            print(" - Latest EP: ", str(latest_ep))
+            print(" - Latest EP: ", str(latest_ep), ", Old Latest EP: ", old_latest_ep)
             if latest_ep == -1:
                 print(f"ERROR - Web Request to " + str(i.anime_url) + " Failed. Aborting this check", file=sys.stderr)
                 return
 
             if old_latest_ep != latest_ep:
-                print(i.name, " - New EP: ", str(latest_ep), "Old EP: ", str(old_latest_ep))
+                print(i.name, " - There's a new EP, Sending Notification")
                 episode = i.get_latest_chapter()
                 embed = i.get_embed(time_str, episode)
                 role = guild.get_role(i.get_role_id())
