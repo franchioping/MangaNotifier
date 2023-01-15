@@ -56,7 +56,7 @@ async def check_chapter_loop():
     gmt_time = gmtime()
     if gmt_time.tm_hour != 23 or gmt_time.tm_min > 15:
         for i in manga:
-            print(i.name, " - Checking")
+            print(i.name, " Checking for new Episodes")
             await asyncio.sleep(1)
             old_latest_ep = int(i.get_old_latest_ep())
             latest_ep = i.get_latest_episode()
