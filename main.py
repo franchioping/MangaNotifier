@@ -63,8 +63,8 @@ async def check_chapter_loop():
             latest_ep = i.get_latest_episode()
             print(" - Latest EP: ", str(latest_ep), " Old Latest EP: ", old_latest_ep)
             if latest_ep == -1:
-                print(f"ERROR - Web Request to " + str(i.anime_url) + " Failed. Aborting this check", file=sys.stderr)
-                return
+                print(f"ERROR - Web Request to " + str(i.anime_url) + " Failed.", file=sys.stderr)
+                continue
 
             if old_latest_ep != latest_ep:
                 print(i.name, " - There's a new EP, Sending Notification")
