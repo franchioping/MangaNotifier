@@ -109,7 +109,7 @@ class Manga:
             print("   --- Not released yet - Upcoming Post")
             return False
 
-        if self.url_ep_str.count("www.blueboxmanga.co") > 0:
+        if self.anime_url.count("www.blueboxmanga.co") > 0:
             for i in req.history:
 
                 if i.status_code < 200 or i.status_code > 300:
