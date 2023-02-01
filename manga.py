@@ -109,5 +109,12 @@ class Manga:
             print("   --- Not released yet - Upcoming Post")
             return False
 
+        for i in req.history:
+
+            if i.status_code < 200 or i.status_code > 300:
+                print("   --- Failed on History")
+                return False
+
+
         return True
 
