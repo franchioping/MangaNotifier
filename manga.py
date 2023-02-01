@@ -109,11 +109,12 @@ class Manga:
             print("   --- Not released yet - Upcoming Post")
             return False
 
-        for i in req.history:
+        if self.url_ep_str.count("www.blueboxmanga.co") > 0:
+            for i in req.history:
 
-            if i.status_code < 200 or i.status_code > 300:
-                print("   --- Failed on History")
-                return False
+                if i.status_code < 200 or i.status_code > 300:
+                    print("   --- Failed on History")
+                    return False
 
 
         return True
