@@ -109,6 +109,11 @@ class Manga:
             print("   --- Not released yet - Upcoming Post")
             return False
 
+        # Needed for https://mangakakalot.com/
+        if req.text.count("Sorry, the page you have requested cannot be found.") > 0:
+            print("   --- Not released yet - Page cannot be found")
+            return False
+
         if self.anime_url.count("www.blueboxmanga.co") > 0:
             for i in req.history:
 
