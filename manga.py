@@ -20,7 +20,7 @@ class Manga:
         self.url_ep_str = "%EP%"
         open(self.filePath, "a+").close()
         self.i = 0
-        if self.get_old_latest_ep():
+        if self.get_old_latest_ep() > 1:
             self.i = len(self.steps) - 1
 
         if self.anime_url.count("%EP%") < 1:
