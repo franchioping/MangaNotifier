@@ -59,12 +59,25 @@ async def check_chapter_loop():
         for i in manga:
             print(f"=== Starting {i.name} Check ===")
             await asyncio.sleep(1)
+            was_broken = i.broken
             old_latest_ep = int(i.get_old_latest_ep())
             latest_ep = i.get_latest_episode()
+            is_broken = i.broken
             print(" - Latest EP: ", str(latest_ep), " Old Latest EP: ", old_latest_ep)
             if latest_ep == -1:
                 print(f"ERROR - Web Request to " + str(i.anime_url) + " Failed.", file=sys.stderr)
                 continue
+
+            if was_broken == False and is_broken == True:
+                print(i.name, ' - Manga is Broken, Sending Alert')
+                role = guild.get_role(i.get_role_id())
+                msg = """
+                Hey Everyone, This Manga is broken, contact the server owned to know why
+                The site probably implemented anit-scraping features, so now its harder to have a bot check if theres a new chapter
+                If you find another site that has this manga, send it over on bug-reports and ill fix it
+                
+                """
+                await bot.get_channel(i.get_channel()).send(msg + role.mention, allowed_mentions=discord.AllowedMentions(everyone=True))
 
             if old_latest_ep != latest_ep:
                 print(i.name, " - There's a new EP, Sending Notification")

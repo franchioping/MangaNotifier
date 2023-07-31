@@ -8,7 +8,7 @@ import requests as r
 
 class Manga:
 
-    def __init__(self, channel, role, name, anime_url: str, image_url):
+    def __init__(self, channel, role, name, anime_url: str, image_url, broken):
         self.steps = [100, 50, 10, 5, 1]
         self.scraper = cld.create_scraper()
         self.name = name
@@ -18,6 +18,7 @@ class Manga:
         self.filePath = os.path.dirname(os.path.realpath(__file__)) + "/" + name + ".txt"
         self.anime_url = anime_url
         self.url_ep_str = "%EP%"
+        self.broken = broken
         open(self.filePath, "a+").close()
         self.i = 0
         if self.get_old_latest_ep() > 1:
@@ -101,6 +102,7 @@ class Manga:
 
     def check_if_episode_exists(self, num: int):
         if self.anime_url.count("https://asura.gg") + self.anime_url.count("https://www.asurascans.com") > 0:
+            self.broken = True
             return None
 
 

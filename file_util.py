@@ -43,13 +43,18 @@ def get_reaction_role_message_id() -> int:
 
 def manga_reader_to_obj(manga_reader: Manga):
     ret = {"name": manga_reader.get_name(), "url": manga_reader.get_anime_url(),
-           "img_url": manga_reader.get_img_url(), "channel_id": manga_reader.channel, "role_id": manga_reader.role_id}
+           "img_url": manga_reader.get_img_url(), "channel_id": manga_reader.channel, "role_id": manga_reader.role_id,
+           "broken": manga_reader.broken}
     return ret
 
 
 def obj_to_manga_reader(obj: dict) -> Manga:
-    return Manga(int(obj["channel_id"]), int(obj["role_id"]), obj["name"], obj["url"],
-                 obj["img_url"])
+    if obj.keys().__contains__("broken"):
+        return Manga(int(obj["channel_id"]), int(obj["role_id"]), obj["name"], obj["url"],
+                     obj["img_url"], obj["broken"])
+    else:
+        return Manga(int(obj["channel_id"]), int(obj["role_id"]), obj["name"], obj["url"],
+                     obj["img_url"], False)
 
 
 def add_obj_to_file(obj: dict):
