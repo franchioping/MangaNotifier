@@ -57,6 +57,18 @@ def obj_to_manga_reader(obj: dict) -> Manga:
                      obj["img_url"], False)
 
 
+def update_manga(updated_manga: Manga):
+    manga_json = manga_reader_to_obj(updated_manga)
+    file = read_json()
+    mangas = file["manga"]
+    for i in range(len(mangas)):
+        manga = mangas[i]
+        if manga["name"] == manga_json["name"]:
+            file["manga"][i] = manga_json
+            break
+    write_json(file)
+
+
 def add_obj_to_file(obj: dict):
     file = read_json()
     file["manga"].append(obj)
