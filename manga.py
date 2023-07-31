@@ -26,6 +26,9 @@ class Manga:
         if self.anime_url.count("%EP%") < 1:
             print(self.name, " - URL is Probably Incorrect - ", self.anime_url, file=sys.stderr)
 
+        if self.anime_url.count("https://asura.gg") + self.anime_url.count("https://www.asurascans.com") > 0:
+            print(self.name, " - Asura has Bot Protection, this manga is broken - ", self.anime_url, file=sys.stderr)
+
     def set_last_latest_ep(self, ep: int):
         with open(self.filePath, "w") as f:
             f.write(str(ep))
@@ -97,15 +100,22 @@ class Manga:
         return latest_ep
 
     def check_if_episode_exists(self, num: int):
+        if self.anime_url.count("https://asura.gg") + self.anime_url.count("https://www.asurascans.com") > 0:
+            return None
+
+
         req = self.scraper.get(self.anime_url.replace(self.url_ep_str, str(num)))
         print(f"  -- Chap {num} HTTP GET Result: ", req.status_code)
+
+        if req.status_code < 200 or req.status_code > 300:
+            return False
+
 
         if req.status_code == 502:
             print("   --- Code 502 - Server May be Offline")
             return None
 
-        if req.status_code < 200 or req.status_code > 300:
-            return False
+
 
         # Needed for Rent-a-Girlfriend
         if req.text.count("This is an Upcoming Post.") > 0:
@@ -117,7 +127,7 @@ class Manga:
             print("   --- Not released yet - Page cannot be found")
             return False
 
-        if self.anime_url.count("www.blueboxmanga.co") > 0:
+        if (self.anime_url.count("www.blueboxmanga.co") + self.anime_url.count("kanojo-okarishimasu-manga.com")) > 0:
             for i in req.history:
 
                 if i.status_code < 200 or i.status_code > 300:
