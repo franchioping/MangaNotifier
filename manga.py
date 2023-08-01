@@ -87,6 +87,8 @@ class Manga:
         return [latest_ep, url]
 
     def check_if_chapter_exists(self, num):
+        if self.broken:
+            return None
         offline = 0
 
         for url in self.urls:
