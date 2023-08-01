@@ -79,7 +79,7 @@ If you find another site that has this manga, send it over on bug-reports and il
                 file_util.update_manga(i)
 
             if latest_ep == -1:
-                print(f"ERROR - Web Request to " + i.urls + " Failed.", file=sys.stderr)
+                print(f"ERROR - Web Request to " + str(i.urls) + " Failed.", file=sys.stderr)
                 continue
 
             if old_latest_ep != latest_ep:
