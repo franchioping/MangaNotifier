@@ -62,7 +62,7 @@ class Manga:
         latest_ep = self.get_old_latest_chapter()
 
         if self.check_if_chapter_exists(latest_ep) is None:
-            return -1
+            return [-1, ""]
 
         steps = self.steps
         url = ""
@@ -71,7 +71,7 @@ class Manga:
             resp = self.check_if_chapter_exists(latest_ep + steps[self.i])
             exists = resp[0]
             if exists is None:
-                return -1
+                return [-1, ""]
             if exists:
                 latest_ep += steps[self.i]
             else:
