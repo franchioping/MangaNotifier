@@ -111,7 +111,7 @@ class Manga:
                 print("   --- Not released yet - Page cannot be found")
                 continue
 
-            if sum([url.count(x) for x in ["www.blueboxmanga.com", "kanojo-okarishimasu-manga.com"]]):
+            if sum([url.count(x) for x in ["www.blueboxmanga.co", "kanojo-okarishimasu-manga.com"]]):
 
                 if sum([int(i.status_code < 200 or i.status_code > 300) for i in req.history]):
                     print("   --- Failed on History")
