@@ -60,34 +60,34 @@ async def check_chapter_loop():
             print(f"=== Starting {i.name} Check ===")
             await asyncio.sleep(1)
             was_broken = i.broken
-            old_latest_ep = int(i.get_old_latest_ep())
-            latest_ep = i.get_latest_episode()
+            old_latest_ep = int(i.get_old_latest_chapter())
+            resp = i.get_latest_chapter()
+            latest_ep = resp[0]
+            latest_ep_url = resp[1]
             is_broken = i.broken
             print(" - Latest EP: ", str(latest_ep), " Old Latest EP: ", old_latest_ep)
 
-
-            if was_broken == False and is_broken == True:
+            if (not was_broken) and is_broken:
                 print(i.name, ' - Manga is Broken, Sending Alert')
-                role = guild.get_role(i.get_role_id())
+                role = guild.get_role(i.role_id)
                 msg = """Hey Everyone, This Manga is broken, contact the server owned to know why
 The site probably implemented anit-scraping features, so now its harder to have a bot check if theres a new chapter
 If you find another site that has this manga, send it over on bug-reports and ill fix it
 """
-                await bot.get_channel(i.get_channel()).send(msg + role.mention, allowed_mentions=discord.AllowedMentions(everyone=True))
+                await bot.get_channel(i.channel_id).send(msg + role.mention,
+                                                         allowed_mentions=discord.AllowedMentions(everyone=True))
                 file_util.update_manga(i)
 
             if latest_ep == -1:
-                print(f"ERROR - Web Request to " + str(i.anime_url) + " Failed.", file=sys.stderr)
+                print(f"ERROR - Web Request to " + i.urls + " Failed.", file=sys.stderr)
                 continue
 
             if old_latest_ep != latest_ep:
                 print(i.name, " - There's a new EP, Sending Notification")
-                episode = i.get_latest_chapter()
-                embed = i.get_embed(time_str, episode)
-                role = guild.get_role(i.get_role_id())
-                await bot.get_channel(i.get_channel()).send(embed=embed, content=role.mention,
-                                                            allowed_mentions=discord.AllowedMentions(everyone=True))
-                i.set_last_latest_ep(episode)
+                embed = i.get_embed(time_str, latest_ep, latest_ep_url)
+                role = guild.get_role(i.role_id)
+                await bot.get_channel(i.channel_id).send(embed=embed, content=role.mention,
+                                                         allowed_mentions=discord.AllowedMentions(everyone=True))
     else:
         print(f"ERROR - Server is within reboot time, aborting", file=sys.stderr)
 
@@ -111,7 +111,7 @@ def add_manga(channel_id: int, role_id: int, public_name: str, url: str, img_url
 
 
 async def add_quick_manga(name: str, chap_url: str,
-                    img_url: str = "https://upload.wikimedia.org/wikipedia/commons/1/14/No_Image_Available.jpg?20200913095930") -> None:
+                          img_url: str = "https://upload.wikimedia.org/wikipedia/commons/1/14/No_Image_Available.jpg?20200913095930") -> None:
     everyone = bot.get_guild(guild_id).default_role
 
     channel = await bot.get_guild(guild_id).create_text_channel(name, category=manga_category)
