@@ -74,8 +74,8 @@ class Manga:
                 return [-1, ""]
             if exists:
                 latest_ep += steps[self.i]
-            else:
                 url = resp[1]
+            else:
                 if self.i == -1:
                     break
                 self.i += 1

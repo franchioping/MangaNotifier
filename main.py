@@ -84,6 +84,8 @@ If you find another site that has this manga, send it over on bug-reports and il
 
             if old_latest_ep != latest_ep:
                 print(i.name, " - There's a new EP, Sending Notification")
+                print(latest_ep_url)
+                print(resp)
                 embed = i.get_embed(time_str, latest_ep, latest_ep_url)
                 role = guild.get_role(i.role_id)
                 await bot.get_channel(i.channel_id).send(embed=embed, content=role.mention,
